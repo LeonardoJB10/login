@@ -1,3 +1,4 @@
+import { getAuth,onAuthStateChanged } from "firebase/auth";
 import {  createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -6,8 +7,43 @@ const router = createRouter({
         {path:"/" , component: () => import("../components/Home.vue")},
         {path:"/register" , component: () =>import("../components/Register.vue")},
         {path:"/sign-in" , component: () =>import("../components/Signin.vue")},
-        {path:"/feed" , component: () =>import("../components/Feed.vue")},
+        {
+            path:"/feed" , 
+            component: () =>import("../components/Feed.vue"),
+            meta: {
+                requiresAuth: true,
+            },
+        },
     ]
 });
+
+
+router.beforeEach(async (to, from, next) =>{
+    if(to.matched.some((record)=> record.meta.requiresAuth)){
+    const user = await getCurrentUser();
+    if(user){
+        next();
+    }else{
+        alert("You dont have access!");
+        next("/sing-in");
+    }
+}else{
+    next();
+}
+});
+
+const getCurrentUser = () => {
+    return new Promise((resolve,reject) => {
+        const removeListener = onAuthStateChanged(
+            getAuth(),
+            (user) => {
+                removeListener();
+                resolve(user);
+            },
+            reject
+        )
+    });
+};
+
 
 export default router;

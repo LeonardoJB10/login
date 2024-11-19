@@ -2,25 +2,28 @@
   <div class="main-container">
     <nav class="navigation">
       <div class="nav-links">
-        <router-link to="/" class="nav-link" active-class="active">
-          Home
-        </router-link>
-        <router-link to="/Feed" class="nav-link" active-class="active">
-          Feed
-        </router-link>
-        <router-link to="/Register" class="nav-link" active-class="active">
-          Register
-        </router-link>
-        <router-link to="/Sign-in" class="nav-link" active-class="active">
-          Singn In
-        </router-link>
-  
+          <router-link to="/" class="nav-link" active-class="active">
+            Home
+          </router-link>
+          <router-link to="/feed" class="nav-link" active-class="active">
+            Feed
+          </router-link>
+          <router-link to="/register" class="nav-link" active-class="active">
+            Register
+          </router-link>
+          <router-link to="/sign-in" class="nav-link" active-class="active">
+            Sign In
+          </router-link>
+          <button @click="handleSignOut" v if="isLoggedIn">Sing out</button>
       </div>
-
     </nav>
+
     <main class="content">
-      <router-view/>
+      <router-view> 
+        
+      </router-view>
     </main>
+
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-section">
@@ -54,15 +57,40 @@
   </div>
 </template>
 
-<script>
-import { RouterView } from 'vue-router';
+<script setup>
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { getAuth,onAuthStateChanged, signOut } from "firebase/auth";
 
-export default {
-  name: 'App',
-  components: {
-    RouterView
-  }
+const router = useRouter();
+const isLoggedIn = ref(false);
+
+let auth;
+
+onMounted(() => {
+  auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      isLoggedIn.value = true;
+    } else {
+      isLoggedIn.value = false;
+    }
+  });
+});
+
+
+const handleSignOut = () => {
+  signOut(auth).then(() =>{
+    router.push("/")
+  });
 }
+
+// export default {
+//   name: 'App',
+//   components: {
+//     RouterView
+//   }
+// }
 </script>
 
 <style>
@@ -117,12 +145,12 @@ export default {
 }
 
 .nav-link:hover {
-  color: #3498db;
+  color: #1f3645;
   background-color: rgba(52, 152, 219, 0.1);
 }
 
 .nav-link.active {
-  color: #3498db;
+  color: #1d3647;
   background-color: rgba(52, 152, 219, 0.1);
 }
 
@@ -134,7 +162,7 @@ export default {
   transform: translateX(-50%);
   width: 0;
   height: 2px;
-  background-color: #3498db;
+  background-color: #152937;
   transition: width 0.3s ease;
 }
 
@@ -151,7 +179,7 @@ export default {
 
 /* Footer Styles */
 .footer {
-  background-color: #2c3e50;
+  background-color: #06294d;
   color: #ffffff;
   padding-top: 3rem;
   margin-top: auto;
@@ -191,7 +219,7 @@ export default {
 }
 
 .footer-section a:hover {
-  color: #3498db;
+  color: #192d3a;
 }
 
 .footer-bottom {
@@ -244,5 +272,4 @@ export default {
     text-align: center;
   }
 }
-
 </style>
